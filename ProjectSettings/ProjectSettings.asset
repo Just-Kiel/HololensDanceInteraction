@@ -700,7 +700,7 @@ PlayerSettings:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
   cloudServicesEnabled:
-    Collab: 1
+    Collab: 0
     UNet: 1
   luminIcon:
     m_Name: 
@@ -714,10 +714,10 @@ PlayerSettings:
     m_VersionCode: 1
     m_VersionName: 
   apiCompatibilityLevel: 6
-  cloudProjectId: b0f6cb81-c85d-4429-8d83-8c8f8939e2ba
+  cloudProjectId: 
   framebufferDepthMemorylessMode: 0
   projectName: azure-kinect-dk-unity
-  organizationId: hololensfun
+  organizationId: 
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0
