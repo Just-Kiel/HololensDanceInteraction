@@ -7,7 +7,7 @@ namespace PoseTeacher
     // All possible Menus that can be displayed in the main menu
     public enum Menus
     {
-        TITLE, DANCE, COURSES, SPECCOURSE, FREEPLAY, SETTINGS, AVATARSETTINGS,
+        TITLE, HANDDETECTION, COURSES, SPECCOURSE, FREEPLAY, SETTINGS, AVATARSETTINGS,
         DIFFICULTYSETTINGS, FEEDSETTINGS, FEEDBACKSETTINGS, RECORDMENU, COREOMENU
     }
     // State of what type of "main" menu the user is in
@@ -36,6 +36,7 @@ namespace PoseTeacher
         public GameObject TrainingElements;
         public GameObject CoreoElements;
         public GameObject RecordElements;
+        public GameObject HandDetectionObject;
 
         private PauseType pauseType = PauseType.TRAINING;
 
@@ -121,15 +122,16 @@ namespace PoseTeacher
             Transform MenuHolderTr = MenuObject.transform.Find("NearMenu");
             menus.Add(Menus.TITLE, MenuHolderTr.Find("TitleMenu").gameObject);
             try { 
-                menus.Add(Menus.DANCE, MenuHolderTr.Find("DanceMenu").gameObject);
+                //menus.Add(Menus.HANDDETECTION, MenuHolderTr.Find("DanceMenu").gameObject);
                 menus.Add(Menus.COURSES, MenuHolderTr.Find("CourseMenu").gameObject);
                 menus.Add(Menus.RECORDMENU, MenuHolderTr.Find("RecordMenu").gameObject);
+                menus.Add(Menus.FREEPLAY, MenuHolderTr.Find("SpecCourseMenu").gameObject);
+                menus.Add(Menus.SPECCOURSE, MenuHolderTr.Find("SpecCourseMenu").gameObject);
             } catch
             {
 
             }
-            menus.Add(Menus.FREEPLAY, MenuHolderTr.Find("SpecCourseMenu").gameObject);
-            menus.Add(Menus.SPECCOURSE, MenuHolderTr.Find("SpecCourseMenu").gameObject);
+            
             menus.Add(Menus.SETTINGS, MenuHolderTr.Find("SettingsMenu").gameObject);
             menus.Add(Menus.AVATARSETTINGS, MenuObject.transform.Find("AvatarSettings").gameObject);
             menus.Add(Menus.DIFFICULTYSETTINGS, MenuHolderTr.Find("DifficultySettingsMenu").gameObject);
@@ -183,16 +185,16 @@ namespace PoseTeacher
             {
                 case Menus.TITLE:
                     break;
-                case Menus.DANCE:
+                case Menus.HANDDETECTION:
                     CurrentMenu = Menus.TITLE;
                     menus[CurrentMenu].SetActive(true);
                     break;
                 case Menus.COURSES:
-                    CurrentMenu = Menus.DANCE;
+                    CurrentMenu = Menus.HANDDETECTION;
                     menus[CurrentMenu].SetActive(true);
                     break;
                 case Menus.FREEPLAY:
-                    CurrentMenu = Menus.DANCE;
+                    CurrentMenu = Menus.HANDDETECTION;
                     menus[CurrentMenu].SetActive(true);
                     break;
                 case Menus.SPECCOURSE:
@@ -268,8 +270,9 @@ namespace PoseTeacher
                 case Menus.TITLE:
                     SelectedInTitleMenu(selectedMenuOption);
                     break;
-                case Menus.DANCE:
-                    SelectedInDanceMenu(selectedMenuOption);
+                case Menus.HANDDETECTION:
+                    Debug.Log("Please!");
+                    HandDetectionObject.SetActive(true);
                     break;
                 case Menus.COURSES:
                     SelectedInCoursesMenu(selectedMenuOption);
@@ -309,8 +312,9 @@ namespace PoseTeacher
                 // Title -> Dance Menu
                 case 0:
                     menus[CurrentMenu].SetActive(false);
-                    CurrentMenu = Menus.DANCE;
-                    menus[CurrentMenu].SetActive(true);
+                    CurrentMenu = Menus.HANDDETECTION;
+                    //menus[CurrentMenu].SetActive(true);
+                    HandDetectionObject.SetActive(true);
                     break;
                 // Title -> Workout Menu (currently inactive)
                 case 1:
@@ -329,6 +333,28 @@ namespace PoseTeacher
                 case 3:
                     menus[CurrentMenu].SetActive(false);
                     CurrentMenu = Menus.RECORDMENU;
+                    menus[CurrentMenu].SetActive(true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SelectedInHandDetectionMenu(int selectedMenuOption)
+        {
+            switch (selectedMenuOption)
+            {
+                // Dance -> Courses Menu
+                case 0:
+                    menus[CurrentMenu].SetActive(false);
+                    CurrentMenu = Menus.COURSES;
+                    menus[CurrentMenu].SetActive(true);
+                    break;
+                // Dance -> Freeplay Menu
+                case 1:
+                    menus[CurrentMenu].SetActive(false);
+                    CurrentMenu = Menus.FREEPLAY;
+                    courseMenuHelper.LoadFreeplay();
                     menus[CurrentMenu].SetActive(true);
                     break;
                 default:
@@ -592,8 +618,8 @@ namespace PoseTeacher
                 case Menus.TITLE:
                     TitleText.text = "<size=120%>Motion Instructor</size>\nWhat are we going to do today?";
                     break;
-                case Menus.DANCE:
-                    TitleText.text = "<size=120%>Dance</size>\nLearn a new dance style, or challange yourself in one that you already know!";
+                case Menus.HANDDETECTION:
+                    TitleText.text = "<size=120%>Hand Detection</size>\nTry know the hand interactions now available!";
                     break;
                 case Menus.COURSES:
                     TitleText.text = "<size=120%>Courses</size>\nSelect the dance style you want to learn!";

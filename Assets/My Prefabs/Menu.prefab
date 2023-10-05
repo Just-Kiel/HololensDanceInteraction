@@ -20313,12 +20313,12 @@ GameObject:
   - component: {fileID: 3782899515321846288}
   - component: {fileID: 3782899515321846291}
   m_Layer: 0
-  m_Name: DanceButton
+  m_Name: HandDetectionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3782899515321846290
 Transform:
   m_ObjectHideFlags: 0
@@ -20809,10 +20809,10 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: 20f25674b9512834f88938d45ed495d7, type: 3}
   iconQuadRenderer: {fileID: 3782899515387666032}
   iconQuadTextureNameID: _MainTex
-  iconQuadTexture: {fileID: 2800000, guid: 26dc2c80edda27548bcb640d10eb357c, type: 3}
+  iconQuadTexture: {fileID: 2800000, guid: 896c7e970ddd2664781101ce5da732a5, type: 3}
   defaultButtonQuadMaterial: {fileID: 2100000, guid: fa419ab56051229449e3b813df8f295f,
     type: 2}
-  iconSet: {fileID: 11400000, guid: 9043436a58ebfda42bebfbb5f4bfd1b2, type: 2}
+  iconSet: {fileID: 11400000, guid: 8da7c35795bc02347800b944b77ff663, type: 2}
   defaultIconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
 --- !u!1 &3782899515327855436
 GameObject:
@@ -33253,7 +33253,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Dances
+  m_text: Hand detection
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
   m_sharedMaterial: {fileID: 21202819797275496, guid: 6a84f857bec7e7345843ae29404c57ce,
