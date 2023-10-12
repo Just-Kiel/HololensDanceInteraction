@@ -61,3 +61,8 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+#Other specifications
+*.dll
+Microsoft.Azure*
+System.*
+dnn_model_2_0.onnx
