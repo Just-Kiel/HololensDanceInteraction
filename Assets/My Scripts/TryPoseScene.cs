@@ -7,6 +7,7 @@ namespace PoseTeacher
     public class TryPoseScene : MonoBehaviour
     {
         PoseInputGetter SelfPoseInputGetter;
+        public GetInferenceFromDanceModel Model;
 
         // Refrences to containers in scene
         public GameObject avatarContainer; // Only used to get reference from editor Inspector
@@ -132,6 +133,9 @@ namespace PoseTeacher
             if (!pauseSelf)
             {
                 AnimateSelf(SelfPoseInputGetter.GetNextPose());
+                Model.UpdatePosition(SelfPoseInputGetter.GetNextPose());
+
+                //Debug.Log(SelfPoseInputGetter.GetNextPose().data[0].Position);
             }
         }
 
