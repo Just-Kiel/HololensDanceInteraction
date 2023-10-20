@@ -117,7 +117,9 @@ public class GetInferenceFromDanceModel : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {}
+    {
+
+    }
 
     public void UpdatePosition(PoseData CurrentPose)
     {
