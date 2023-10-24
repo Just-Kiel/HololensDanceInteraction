@@ -815,6 +815,9 @@ MonoBehaviour:
   vfx:
   - {fileID: 2016961387}
   - {fileID: 1390623298}
+  - {fileID: 1390623298}
+  currentVFX: 0
+  ActionDetected: {fileID: 1670315071}
 --- !u!1 &1291392857
 GameObject:
   m_ObjectHideFlags: 0
@@ -1202,6 +1205,7 @@ MonoBehaviour:
     type: 3}
   prediction:
     predictedValue: 0
+    predictedIndex: 0
     predicted: []
 --- !u!1001 &1698460580
 PrefabInstance:

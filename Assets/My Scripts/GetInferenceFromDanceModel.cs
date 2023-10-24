@@ -92,12 +92,14 @@ public class GetInferenceFromDanceModel : MonoBehaviour
     public struct PredictionCategory
     {
         public string predictedValue;
+        public int predictedIndex;
         public float[] predicted;
 
         public void SetPrediction(Tensor t)
         {
             predicted = t.AsFloats();
             predictedValue = GetInferenceFromDanceModel.categories[Array.IndexOf(predicted, predicted.Max())];
+            predictedIndex = Array.IndexOf(predicted, predicted.Max());
             Debug.Log($"Predicted {predictedValue} ");
         }
     }

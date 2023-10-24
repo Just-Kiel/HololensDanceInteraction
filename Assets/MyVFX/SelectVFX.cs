@@ -8,7 +8,8 @@ using UnityEngine.VFX;
 public class SelectVFX : MonoBehaviour
 {
     public GameObject[] vfx;
-    int currentVFX;
+    public int currentVFX;
+    public GameObject ActionDetected;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,13 +18,15 @@ public class SelectVFX : MonoBehaviour
             vfx.GetComponent<VisualEffect>().Stop();
         }
 
-        currentVFX = Random.Range(0, vfx.Length);
+        //currentVFX = Random.Range(0, vfx.Length);
+        currentVFX = ActionDetected.GetComponent<GetInferenceFromDanceModel>().prediction.predictedIndex;
+        vfx[currentVFX].GetComponent<VisualEffect>().Play();
     }
 
     // Update is called once per frame
     void Update()
     {
-        int newVFX = Random.Range(0, vfx.Length);
+        int newVFX = ActionDetected.GetComponent<GetInferenceFromDanceModel>().prediction.predictedIndex;
         if (currentVFX != newVFX)
         {
             Debug.Log($"New effect : {newVFX}");
