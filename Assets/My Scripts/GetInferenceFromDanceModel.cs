@@ -19,6 +19,7 @@ public class GetInferenceFromDanceModel : MonoBehaviour
 
     static public string[] categories =
     {
+        "both_hands_up",
         "left_foot_up",
         "right_hand_up",
         "waiting"
@@ -132,7 +133,7 @@ public class GetInferenceFromDanceModel : MonoBehaviour
         float[][] mediapipeJoints = MapAzureKinectToMediapipe(azureKinectJoints);
         array = array.Concat(mediapipeJoints.SelectMany(x => x)).ToArray();
 
-        Debug.Log($"Right wrist {mediapipeJoints[16][0]}, {mediapipeJoints[16][1]}, {mediapipeJoints[16][2]} ");
+        //Debug.Log($"Right wrist {mediapipeJoints[16][0]}, {mediapipeJoints[16][1]}, {mediapipeJoints[16][2]} ");
 
         if (array.Length < 3960) return;
         if (array.Length > 3960)
