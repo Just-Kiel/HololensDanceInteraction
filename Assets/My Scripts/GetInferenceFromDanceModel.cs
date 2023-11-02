@@ -1,13 +1,9 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using PoseTeacher;
+﻿using PoseTeacher;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Barracuda;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
-using UnityEngine.Video;
 
 public class GetInferenceFromDanceModel : MonoBehaviour
 {
@@ -16,14 +12,24 @@ public class GetInferenceFromDanceModel : MonoBehaviour
     private IWorker _engine;
     private JointData[] jointData;
     private float[] array;
+    public GameObject Visuallizer;
+    private PoseVisuallizer3D _poseVisuallizer;
 
     static public string[] categories =
     {
+        "kick_right_leg",
+        "point_left_hand_around_bounce_hips",
+        "start_capturing_movement",
+        "stop_capturing_movement",
+        "sweep_hands_right",
+        "turn_180_around_fist_up_sway_hips"
+    };
+    /*{
         "both_hands_up",
         "left_foot_up",
         "right_hand_up",
         "waiting"
-    };
+    };*/
     /*{
         "kick_right_leg", 
         "point_left_hand_around_bounce_hips",
@@ -116,24 +122,63 @@ public class GetInferenceFromDanceModel : MonoBehaviour
         prediction = new PredictionCategory();
 
         array = new float[3960];
+
+        _poseVisuallizer = Visuallizer.GetComponent<PoseVisuallizer3D>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        //New attempt
+        for (int i = 0; i < _poseVisuallizer.detecter.vertexCount + 1; i++)
+        {
+            float[] temp = {
+                _poseVisuallizer.detecter.GetPoseLandmark(i).x,
+                _poseVisuallizer.detecter.GetPoseLandmark(i).y,
+                _poseVisuallizer.detecter.GetPoseLandmark(i).z,
+                _poseVisuallizer.detecter.GetPoseLandmark(i).w
+            };
 
+            array = array.Concat(temp).ToArray();
+        }
+
+        if (array.Length < 3960) return;
+        if (array.Length > 3960)
+        {
+            array = array.Skip(132).ToArray();
+        }
+
+        var inputX = new Tensor(1, 1, 132, 30, array);
+
+        Tensor outputY = _engine.Execute(inputX).PeekOutput();
+
+        inputX.Dispose();
+        prediction.SetPrediction(outputY);
     }
 
     public void UpdatePosition(PoseData CurrentPose)
     {
-        jointData = CurrentPose.data;
+        /*jointData = CurrentPose.data;
 
         float[][] azureKinectJoints;
         azureKinectJoints = jointData.Select(joint => new float[] { joint.Position.x, joint.Position.y, joint.Position.z, 1.0F }).ToArray();
         float[][] mediapipeJoints = MapAzureKinectToMediapipe(azureKinectJoints);
-        array = array.Concat(mediapipeJoints.SelectMany(x => x)).ToArray();
+        array = array.Concat(mediapipeJoints.SelectMany(x => x)).ToArray();*/
 
         //Debug.Log($"Right wrist {mediapipeJoints[16][0]}, {mediapipeJoints[16][1]}, {mediapipeJoints[16][2]} ");
+
+        //New attempt
+        for (int i = 0; i < _poseVisuallizer.detecter.vertexCount + 1; i++)
+        {
+            float[] temp = {
+                _poseVisuallizer.detecter.GetPoseLandmark(i).x,
+                _poseVisuallizer.detecter.GetPoseLandmark(i).y,
+                _poseVisuallizer.detecter.GetPoseLandmark(i).z,
+                _poseVisuallizer.detecter.GetPoseLandmark(i).w
+            };
+
+            array = array.Concat(temp).ToArray();
+        }
 
         if (array.Length < 3960) return;
         if (array.Length > 3960)

@@ -7,9 +7,11 @@ public class WebCamInput : MonoBehaviour
     [SerializeField] Texture staticInput;
 
     // Provide input image Texture.
-    public Texture inputImageTexture{
-        get{
-            if(staticInput != null) return staticInput;
+    public Texture inputImageTexture
+    {
+        get
+        {
+            if (staticInput != null) return staticInput;
             return inputRT;
         }
     }
@@ -19,8 +21,10 @@ public class WebCamInput : MonoBehaviour
 
     void Start()
     {
-        if(staticInput == null){
-            webCamTexture = new WebCamTexture(webCamName, (int)webCamResolution.x, (int)webCamResolution.y);
+        webCamName = WebCamTexture.devices[4].name;
+        if (staticInput == null)
+        {
+            webCamTexture = new WebCamTexture(webCamName);
             webCamTexture.Play();
         }
 
@@ -29,8 +33,8 @@ public class WebCamInput : MonoBehaviour
 
     void Update()
     {
-        if(staticInput != null) return;
-        if(!webCamTexture.didUpdateThisFrame) return;
+        if (staticInput != null) return;
+        if (!webCamTexture.didUpdateThisFrame) return;
 
         var aspect1 = (float)webCamTexture.width / webCamTexture.height;
         var aspect2 = (float)inputRT.width / inputRT.height;
@@ -43,7 +47,8 @@ public class WebCamInput : MonoBehaviour
         Graphics.Blit(webCamTexture, inputRT, scale, offset);
     }
 
-    void OnDestroy(){
+    void OnDestroy()
+    {
         if (webCamTexture != null) Destroy(webCamTexture);
         if (inputRT != null) Destroy(inputRT);
     }

@@ -12,7 +12,7 @@ public class PoseVisuallizer3D : MonoBehaviour
     [SerializeField, Range(0, 1)] float humanExistThreshold = 0.5f;
 
     Material material;
-    BlazePoseDetecter detecter;
+    public BlazePoseDetecter detecter;
 
     // Lines count of body's topology.
     const int BODY_LINE_NUM = 35;
