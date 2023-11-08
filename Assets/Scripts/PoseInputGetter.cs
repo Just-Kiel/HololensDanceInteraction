@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Kinect.BodyTracking;
+﻿using Mediapipe.BlazePose;
+using Microsoft.Azure.Kinect.BodyTracking;
 using Microsoft.Azure.Kinect.Sensor;
 using NativeWebSocket;
 using System;
@@ -12,7 +13,7 @@ namespace PoseTeacher
     // Label for various containers
     public enum PoseInputSource
     {
-        KINECT, WEBSOCKET, FILE
+        KINECT, WEBSOCKET, FILE, MEDIAPIPE
     }
 
     public class PoseInputGetter
@@ -31,6 +32,24 @@ namespace PoseTeacher
         private Renderer videoRenderer;
         private RawImage m_RawImage;
         public GameObject streamCanvas;
+
+        // Mediapipe variables
+        private string webCamName;
+        WebCamTexture webCamTexture;
+        RenderTexture inputRT;
+        Vector2 webCamResolution = new Vector2(1920, 1080);
+        public BlazePoseDetecter detecter;
+        Texture staticInput;
+
+        // Provide input image Texture.
+        public Texture inputImageTexture
+        {
+            get
+            {
+                if (staticInput != null) return staticInput;
+                return inputRT;
+            }
+        }
 
         public GameObject VideoCube { set { if (value != null) videoRenderer = value.GetComponent<MeshRenderer>(); } }
 
@@ -80,6 +99,10 @@ namespace PoseTeacher
                     break;
 
                 case PoseInputSource.FILE:
+                    break;
+
+                case PoseInputSource.MEDIAPIPE:
+                    //StartMediapipe();
                     break;
             }
         }
@@ -158,6 +181,22 @@ namespace PoseTeacher
 
             this.tracker = Tracker.Create(calibration, trackerConfiguration);
             Debug.Log("Body tracker created.");
+        }
+
+        private void StartMediapipe()
+        {
+            webCamName = WebCamTexture.devices[4].name;
+            Debug.Log(webCamName);
+            if (staticInput == null)
+            {
+                webCamTexture = new WebCamTexture(webCamName);
+                webCamTexture.Play();
+            }
+
+            inputRT = new RenderTexture((int)webCamResolution.x, (int)webCamResolution.y, 0);
+
+            detecter = new BlazePoseDetecter();
+            Debug.Log("Webcam created.");
         }
 
         private void GetTotalPoseNumber()
@@ -321,12 +360,16 @@ namespace PoseTeacher
                         Debug.Log("device is null!");
                     }
                     break;
+                /*case PoseInputSource.MEDIAPIPE:
+                    // Predict pose by neural network model.
+                    detecter.ProcessImage(inputImageTexture);
+                    break;*/
 
             }
             return CurrentPose;
         }
 
-        public async void Dispose()
+            public async void Dispose()
         {
             if (websocket != null)
             {
@@ -339,6 +382,13 @@ namespace PoseTeacher
             if (device != null)
             {
                 device.Dispose();
+            }
+            if (webCamTexture != null)
+            {
+                webCamTexture.Stop();
+
+                // Must call Dispose method when no longer in use.
+                detecter.Dispose();
             }
         }
 

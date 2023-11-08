@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PoseTeacher;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
@@ -18,15 +19,16 @@ public class SelectVFX : MonoBehaviour
             vfx.GetComponent<VisualEffect>().Stop();
         }
 
-        //currentVFX = Random.Range(0, vfx.Length);
-        currentVFX = ActionDetected.GetComponent<GetInferenceFromDanceModel>().prediction.predictedIndex;
-        vfx[currentVFX].GetComponent<VisualEffect>().Play();
+        currentVFX = -1;
+        /*currentVFX = ActionDetected.GetComponent<GetInferenceFromDanceModel>().prediction.predictedIndex;
+        vfx[currentVFX].GetComponent<VisualEffect>().Play();*/
     }
 
     // Update is called once per frame
     void Update()
     {
-        int newVFX = ActionDetected.GetComponent<GetInferenceFromDanceModel>().prediction.predictedIndex;
+        //int newVFX = ActionDetected.GetComponent<GetInferenceFromDanceModel>().prediction.predictedIndex;
+        int newVFX = ActionDetected.GetComponent<TryPoseScene>().Action;
         if (currentVFX != newVFX)
         {
             Debug.Log($"New effect : {newVFX}");
@@ -37,7 +39,7 @@ public class SelectVFX : MonoBehaviour
 
     void SelectionVFX(int newVFX, int oldVFX)
     {
-        vfx[oldVFX].GetComponent<VisualEffect>().Stop();
-        vfx[newVFX].GetComponent<VisualEffect>().Play();
+        if (oldVFX != -1) vfx[oldVFX].GetComponent<VisualEffect>().Stop();
+        if (newVFX != -1) vfx[newVFX].GetComponent<VisualEffect>().Play();
     }
 }

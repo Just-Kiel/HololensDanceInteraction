@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO.Ports;
 using UnityEngine;
 
 namespace PoseTeacher
@@ -7,7 +8,8 @@ namespace PoseTeacher
     public class TryPoseScene : MonoBehaviour
     {
         PoseInputGetter SelfPoseInputGetter;
-        public GetInferenceFromDanceModel Model;
+        public int Action = -1;
+        //public GetInferenceFromDanceModel Model;
 
         // Refrences to containers in scene
         public GameObject avatarContainer; // Only used to get reference from editor Inspector
@@ -24,11 +26,42 @@ namespace PoseTeacher
         public PoseInputSource SelfPoseInputSource = PoseInputSource.KINECT;
         public bool mirroring = false; // can probably be changed to private (if no UI elements use it)
 
+        public PoseVisuallizer3D poseVisuallizer;
+
         public List<AvatarContainer> GetSelfAvatarContainers()
         {
             return avatarListSelf;
         }
 
+        public bool HandsAboveHead(PoseData CurrentPose)
+        {
+            return CurrentPose.data[8].Position.y < CurrentPose.data[27].Position.y 
+                && CurrentPose.data[15].Position.y < CurrentPose.data[27].Position.y;
+        }
+        public bool HandsElbowsAboveHead(PoseData CurrentPose)
+        {
+            return CurrentPose.data[8].Position.y < CurrentPose.data[27].Position.y
+                && CurrentPose.data[15].Position.y < CurrentPose.data[27].Position.y
+                && CurrentPose.data[6].Position.y < CurrentPose.data[27].Position.y
+                && CurrentPose.data[13].Position.y < CurrentPose.data[27].Position.y;
+        }
+        public bool ElbowsAboveHead(PoseData CurrentPose)
+        {
+            return CurrentPose.data[6].Position.y < CurrentPose.data[27].Position.y
+                && CurrentPose.data[13].Position.y < CurrentPose.data[27].Position.y;
+        }
+
+        public bool MediapipeHandsAboveHead(PoseVisuallizer3D CurrentPose)
+        {
+            return CurrentPose.detecter.GetPoseLandmark(15).y > CurrentPose.detecter.GetPoseLandmark(0).y
+                && CurrentPose.detecter.GetPoseLandmark(16).y > CurrentPose.detecter.GetPoseLandmark(0).y;
+        }
+
+        public bool MediapipeElbowsAboveHead(PoseVisuallizer3D CurrentPose)
+        {
+            return CurrentPose.detecter.GetPoseLandmark(13).y > CurrentPose.detecter.GetPoseLandmark(0).y
+                && CurrentPose.detecter.GetPoseLandmark(14).y > CurrentPose.detecter.GetPoseLandmark(0).y;
+        }
         //Add copy of self or techer to scene
         public void AddAvatar(bool self)
         {
@@ -133,9 +166,50 @@ namespace PoseTeacher
             if (!pauseSelf)
             {
                 AnimateSelf(SelfPoseInputGetter.GetNextPose());
-                Model.UpdatePosition(SelfPoseInputGetter.GetNextPose());
+                //Model.UpdatePosition(SelfPoseInputGetter.GetNextPose());
 
                 //Debug.Log(SelfPoseInputGetter.GetNextPose().data[0].Position);
+
+                switch (SelfPoseInputSource)
+                {
+                    case PoseInputSource.KINECT:
+                        if (HandsElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
+                        {
+                            Action = 0;
+                            Debug.Log("Arms above head !");
+                        }
+                        else if (ElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
+                        {
+                            Action = 1;
+                            Debug.Log("Elbows above head !");
+                        }
+                        else if (HandsAboveHead(SelfPoseInputGetter.GetNextPose()))
+                        {
+                            Action = 2;
+                            Debug.Log("Hands above head !");
+                        }
+                        else
+                        {
+                            Action = -1;
+                        }
+                        break;
+                    case PoseInputSource.MEDIAPIPE:
+                        if (MediapipeElbowsAboveHead(poseVisuallizer))
+                        {
+                            Action = 0;
+                            Debug.Log("Elbows above head !");
+                        }
+                        else if (MediapipeHandsAboveHead(poseVisuallizer))
+                        {
+                            Action = 1;
+                            Debug.Log("Hands above head !");
+                        } else
+                        {
+                            Action = -1;
+                        }
+                        break;
+                }
+                
             }
         }
 

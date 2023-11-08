@@ -3,7 +3,9 @@
     {
       "name": "creativeikep",
       "url": "https://registry.npmjs.com",
-      "scopes": [ "jp.ikep" ]
+      "scopes": [
+        "jp.ikep"
+      ]
     }
   ],
   "dependencies": {
@@ -16,6 +18,8 @@
     "com.unity.ide.rider": "1.2.1",
     "com.unity.ide.visualstudio": "2.0.15",
     "com.unity.ide.vscode": "1.2.5",
+    "com.unity.meshsync": "0.13.2-preview",
+    "com.unity.meshsync.dcc-plugins": "0.13.1-preview",
     "com.unity.render-pipelines.universal": "7.7.1",
     "com.unity.test-framework": "1.1.31",
     "com.unity.textmeshpro": "2.1.6",
@@ -25,6 +29,7 @@
     "com.unity.xr.management": "4.2.1",
     "com.unity.xr.windowsmr": "2.9.4",
     "com.unity.xr.windowsmr.metro": "4.2.3",
+    "jp.ikep.mediapipe.blazepose": "1.3.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -55,7 +60,6 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "jp.ikep.mediapipe.blazepose": "1.3.0"
+    "com.unity.modules.xr": "1.0.0"
   }
 }

@@ -57,6 +57,7 @@ public class GetInferenceFromDanceModel : MonoBehaviour
 
     static Dictionary<int, int> jointMapping = new Dictionary<int, int>
     {
+        //Mediapipe, Azure Kinect
         { 0, 27 },
         { 1, 28 },
         { 2, 28 },
