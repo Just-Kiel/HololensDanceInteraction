@@ -7,6 +7,7 @@ namespace PoseTeacher
 {
     #region Joint and Pose classes
     // Class with position and orientation of one joint
+    [Serializable]
     public class JointData
     {
         public Vector3 Position;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace PoseTeacher
@@ -27,7 +28,7 @@ namespace PoseTeacher
 
         public PoseVisuallizer3D poseVisuallizer;
 
-        [SerializeField] public PoseData recordedPose = null;
+        public List<PoseData> recordedPose = null;
         float unitAround = 100; // in millimeters
         public float threshold = 1;
         public List<AvatarContainer> GetSelfAvatarContainers()
@@ -159,6 +160,11 @@ namespace PoseTeacher
             do_mirror();
 
             recordedPose = null;
+            if (File.Exists(Application.persistentDataPath + "/recordedMoves.json"))
+            {
+                string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMoves.json");
+                recordedPose = JsonUtility.FromJson<List<PoseData>>(currentMoves);
+            }
         }
 
         // Done at each application update
@@ -197,19 +203,22 @@ namespace PoseTeacher
                             Action = -1;
                         }*/
 
-                        if(recordedPose.data != null)
+                        if(recordedPose.Count != 0)
                         {
                             /*if (SelfPoseInputGetter.GetNextPose().data[27].Position == recordedPose.data[27].Position)*/
-                            if(SelfPoseInputGetter.GetNextPose().ComparePosition(recordedPose, threshold*unitAround) >= 0.8)
+                            foreach(PoseData poseData in recordedPose)
                             {
-                                Action = 0;
-                                Debug.Log("Pose accorded !");
-                                Debug.Log(SelfPoseInputGetter.GetNextPose().ComparePosition(recordedPose, threshold * unitAround));
-                            } else
-                            {
-                                Action = -1;
+                                if (SelfPoseInputGetter.GetNextPose().ComparePosition(poseData, threshold * unitAround) >= 0.8)
+                                {
+                                    Action = 0;
+                                    Debug.Log("Pose accorded !");
+                                    Debug.Log(SelfPoseInputGetter.GetNextPose().ComparePosition(poseData, threshold * unitAround));
+                                }
+                                else
+                                {
+                                    Action = -1;
+                                }
                             }
-
                         }
                         else
                         {
@@ -218,7 +227,7 @@ namespace PoseTeacher
 
                         if (Input.GetMouseButtonDown(1))
                         {
-                            recordedPose = SelfPoseInputGetter.GetNextPose();
+                            recordedPose.Add(SelfPoseInputGetter.GetNextPose());
                             Debug.Log("Record position !");
                         }
                         break;
@@ -246,6 +255,13 @@ namespace PoseTeacher
         // Actions to do before quitting application
         private void OnApplicationQuit()
         {
+            string jsonData = JsonUtility.ToJson(recordedPose);
+
+            File.WriteAllText(Application.persistentDataPath + "/recordedMoves.json", jsonData);
+
+            Debug.Log($"{jsonData}");
+
+
             SelfPoseInputGetter.Dispose();
         }
 
