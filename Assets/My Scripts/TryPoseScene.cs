@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO.Ports;
 using UnityEngine;
 
 namespace PoseTeacher
@@ -28,6 +27,9 @@ namespace PoseTeacher
 
         public PoseVisuallizer3D poseVisuallizer;
 
+        [SerializeField] public PoseData recordedPose = null;
+        float unitAround = 100; // in millimeters
+        public float threshold = 1;
         public List<AvatarContainer> GetSelfAvatarContainers()
         {
             return avatarListSelf;
@@ -156,6 +158,7 @@ namespace PoseTeacher
             // Default is to have a mirrored view
             do_mirror();
 
+            recordedPose = null;
         }
 
         // Done at each application update
@@ -173,7 +176,8 @@ namespace PoseTeacher
                 switch (SelfPoseInputSource)
                 {
                     case PoseInputSource.KINECT:
-                        if (HandsElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
+
+                        /*if (HandsElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
                         {
                             Action = 0;
                             Debug.Log("Arms above head !");
@@ -191,6 +195,31 @@ namespace PoseTeacher
                         else
                         {
                             Action = -1;
+                        }*/
+
+                        if(recordedPose.data != null)
+                        {
+                            /*if (SelfPoseInputGetter.GetNextPose().data[27].Position == recordedPose.data[27].Position)*/
+                            if(SelfPoseInputGetter.GetNextPose().ComparePosition(recordedPose, threshold*unitAround) >= 0.8)
+                            {
+                                Action = 0;
+                                Debug.Log("Pose accorded !");
+                                Debug.Log(SelfPoseInputGetter.GetNextPose().ComparePosition(recordedPose, threshold * unitAround));
+                            } else
+                            {
+                                Action = -1;
+                            }
+
+                        }
+                        else
+                        {
+                            Action = -1;
+                        }
+
+                        if (Input.GetMouseButtonDown(1))
+                        {
+                            recordedPose = SelfPoseInputGetter.GetNextPose();
+                            Debug.Log("Record position !");
                         }
                         break;
                     case PoseInputSource.MEDIAPIPE:

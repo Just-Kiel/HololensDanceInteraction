@@ -19,6 +19,36 @@ namespace PoseTeacher
     public class PoseData
     {
         public JointData[] data;
+
+        public float ComparePosition(PoseData poseData, float distanceAccepted)
+        {
+            float averageSucceed = 0;
+            for (int i=0; i<this.data.Length; i++) 
+            {
+                float minX = poseData.data[i].Position.x - distanceAccepted;
+                float maxX = poseData.data[i].Position.x + distanceAccepted;
+                
+                float minY = poseData.data[i].Position.y - distanceAccepted;
+                float maxY = poseData.data[i].Position.y + distanceAccepted;
+
+                float minZ = poseData.data[i].Position.z - distanceAccepted;
+                float maxZ = poseData.data[i].Position.z + distanceAccepted;
+
+                if (minX < this.data[i].Position.x &&
+                    maxX > this.data[i].Position.x
+                    &&
+                    minY < this.data[i].Position.y &&
+                    maxY > this.data[i].Position.y
+                    &&
+                    minZ < this.data[i].Position.z &&
+                    maxZ > this.data[i].Position.z)
+                {
+                    averageSucceed++;
+                }
+            }
+
+            return averageSucceed/ this.data.Length;
+        }
     }
 
 
