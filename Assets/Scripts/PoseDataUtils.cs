@@ -52,6 +52,12 @@ namespace PoseTeacher
         }
     }
 
+    [Serializable]
+    public class Positions
+    {
+        public PoseData[] poses;
+    }
+
 
     // Class with position and orientation of one joint in string format
     // Used for conversion to JSON

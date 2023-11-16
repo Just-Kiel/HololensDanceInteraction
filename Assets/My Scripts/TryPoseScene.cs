@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace PoseTeacher
@@ -28,7 +29,7 @@ namespace PoseTeacher
 
         public PoseVisuallizer3D poseVisuallizer;
 
-        public List<PoseData> recordedPose = null;
+        public List<PoseData> recordedPose;
         float unitAround = 100; // in millimeters
         public float threshold = 1;
         public List<AvatarContainer> GetSelfAvatarContainers()
@@ -159,11 +160,13 @@ namespace PoseTeacher
             // Default is to have a mirrored view
             do_mirror();
 
-            recordedPose = null;
+            //recordedPose = null;
             if (File.Exists(Application.persistentDataPath + "/recordedMoves.json"))
             {
+                Positions arrayDataPose = new Positions();
                 string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMoves.json");
-                recordedPose = JsonUtility.FromJson<List<PoseData>>(currentMoves);
+                arrayDataPose = JsonUtility.FromJson<Positions>(currentMoves);
+                recordedPose = arrayDataPose.poses.ToList();
             }
         }
 
@@ -212,7 +215,7 @@ namespace PoseTeacher
                                 {
                                     Action = 0;
                                     Debug.Log("Pose accorded !");
-                                    Debug.Log(SelfPoseInputGetter.GetNextPose().ComparePosition(poseData, threshold * unitAround));
+                                    break;
                                 }
                                 else
                                 {
@@ -255,7 +258,9 @@ namespace PoseTeacher
         // Actions to do before quitting application
         private void OnApplicationQuit()
         {
-            string jsonData = JsonUtility.ToJson(recordedPose);
+            Positions arrayDataPose = new Positions();
+            arrayDataPose.poses = recordedPose.ToArray();
+            string jsonData = JsonUtility.ToJson(arrayDataPose);
 
             File.WriteAllText(Application.persistentDataPath + "/recordedMoves.json", jsonData);
 
