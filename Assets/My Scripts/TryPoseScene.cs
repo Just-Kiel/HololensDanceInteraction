@@ -208,12 +208,13 @@ namespace PoseTeacher
 
                         if(recordedPose.Count != 0)
                         {
+                            int index = 0;
                             /*if (SelfPoseInputGetter.GetNextPose().data[27].Position == recordedPose.data[27].Position)*/
                             foreach(PoseData poseData in recordedPose)
                             {
                                 if (SelfPoseInputGetter.GetNextPose().ComparePosition(poseData, threshold * unitAround) >= 0.8)
                                 {
-                                    Action = 0;
+                                    Action = index % GetComponent<SelectVFX>().vfx.Length;
                                     Debug.Log("Pose accorded !");
                                     break;
                                 }
@@ -221,6 +222,7 @@ namespace PoseTeacher
                                 {
                                     Action = -1;
                                 }
+                                index++;
                             }
                         }
                         else
@@ -230,7 +232,14 @@ namespace PoseTeacher
 
                         if (Input.GetMouseButtonDown(1))
                         {
-                            recordedPose.Add(SelfPoseInputGetter.GetNextPose());
+                            PoseData poseToRecord = SelfPoseInputGetter.GetNextPose();
+
+                            for (int i = 0; i<poseToRecord.data.Length; i++)
+                            {
+                                poseToRecord.data[i].Position -= poseToRecord.data[0].Position;
+                            }
+
+                            recordedPose.Add(poseToRecord);
                             Debug.Log("Record position !");
                         }
                         break;

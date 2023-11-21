@@ -21,7 +21,6 @@ public class WebCamInput : MonoBehaviour
 
     void Start()
     {
-        webCamName = WebCamTexture.devices[4].name;
         if (staticInput == null)
         {
             webCamTexture = new WebCamTexture(webCamName);
