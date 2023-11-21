@@ -32,6 +32,7 @@ namespace PoseTeacher
         public List<PoseData> recordedPose;
         float unitAround = 100; // in millimeters
         public float threshold = 1;
+        public GameObject VFXs;
         public List<AvatarContainer> GetSelfAvatarContainers()
         {
             return avatarListSelf;
@@ -196,7 +197,8 @@ namespace PoseTeacher
                             Action = 1;
                             Debug.Log("Elbows above head !");
                         }
-                        else if (HandsAboveHead(SelfPoseInputGetter.GetNextPose()))
+                        else */
+                        /*if (HandsAboveHead(SelfPoseInputGetter.GetNextPose()))
                         {
                             Action = 2;
                             Debug.Log("Hands above head !");
@@ -208,13 +210,27 @@ namespace PoseTeacher
 
                         if(recordedPose.Count != 0)
                         {
+                            PoseData poseToRecord = SelfPoseInputGetter.GetNextPose();
+
+                            for (int i = 0; i < poseToRecord.data.Length; i++)
+                            {
+                                poseToRecord.data[i].Position -= poseToRecord.data[0].Position;
+                                poseToRecord.data[i].Orientation = Quaternion.Inverse(poseToRecord.data[0].Orientation) * poseToRecord.data[i].Orientation;
+                            }
                             int index = 0;
                             /*if (SelfPoseInputGetter.GetNextPose().data[27].Position == recordedPose.data[27].Position)*/
                             foreach(PoseData poseData in recordedPose)
                             {
-                                if (SelfPoseInputGetter.GetNextPose().ComparePosition(poseData, threshold * unitAround) >= 0.8)
+                                /*if (poseToRecord.ComparePosition(poseData, threshold * unitAround) >= 0.8)
                                 {
-                                    Action = index % GetComponent<SelectVFX>().vfx.Length;
+                                    Action = index % VFXs.GetComponent<SelectVFX>().vfx.Length;
+                                    Debug.Log("Pose accorded !");
+                                    break;
+                                }*/
+
+                                if (poseToRecord.CompareRotation(poseData, 25.0f) >= 0.8)
+                                {
+                                    Action = index % VFXs.GetComponent<SelectVFX>().vfx.Length;
                                     Debug.Log("Pose accorded !");
                                     break;
                                 }
@@ -232,17 +248,25 @@ namespace PoseTeacher
 
                         if (Input.GetMouseButtonDown(1))
                         {
+                            Debug.Log("Recording position !");
                             PoseData poseToRecord = SelfPoseInputGetter.GetNextPose();
 
-                            for (int i = 0; i<poseToRecord.data.Length; i++)
+                            for (int i = 0; i < poseToRecord.data.Length; i++)
                             {
                                 poseToRecord.data[i].Position -= poseToRecord.data[0].Position;
+                                poseToRecord.data[i].Orientation = Quaternion.Inverse(poseToRecord.data[0].Orientation) * poseToRecord.data[i].Orientation;
                             }
 
                             recordedPose.Add(poseToRecord);
                             Debug.Log("Record position !");
                         }
-                        break;
+
+                        if (Input.GetMouseButtonDown(2))
+                        {
+                            recordedPose.Clear();
+                            Debug.Log("Positions deleted !");
+                        }
+                            break;
                     case PoseInputSource.MEDIAPIPE:
                         if (MediapipeElbowsAboveHead(poseVisuallizer))
                         {

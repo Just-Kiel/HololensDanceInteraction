@@ -50,6 +50,21 @@ namespace PoseTeacher
 
             return averageSucceed/ this.data.Length;
         }
+
+        public float CompareRotation(PoseData poseData, float rotationAccepted)
+        {
+            float averageSucceed = 0;
+
+            for (int i = 0; i < this.data.Length; i++)
+            {
+                if (Quaternion.Angle(this.data[i].Orientation, poseData.data[i].Orientation) < rotationAccepted)
+                {
+                    averageSucceed++;
+                }
+            }
+
+                return averageSucceed / this.data.Length;
+        }
     }
 
     [Serializable]
