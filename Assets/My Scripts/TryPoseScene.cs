@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Mediapipe.BlazePose;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -30,7 +31,8 @@ namespace PoseTeacher
         public PoseVisuallizer3D poseVisuallizer;
 
         public List<PoseData> recordedPose;
-        float unitAround = 100; // in millimeters
+        public List<BlazePoseDetecter> recordedMediapipePose;
+        const float unitAround = 100; // in millimeters
         public float threshold = 1;
         public GameObject VFXs;
         public List<AvatarContainer> GetSelfAvatarContainers()
@@ -162,12 +164,30 @@ namespace PoseTeacher
             do_mirror();
 
             //recordedPose = null;
-            if (File.Exists(Application.persistentDataPath + "/recordedMoves.json"))
+
+            switch (SelfPoseInputSource)
             {
-                Positions arrayDataPose = new Positions();
-                string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMoves.json");
-                arrayDataPose = JsonUtility.FromJson<Positions>(currentMoves);
-                recordedPose = arrayDataPose.poses.ToList();
+                case PoseInputSource.KINECT:
+                    if (File.Exists(Application.persistentDataPath + "/recordedMoves.json"))
+                    {
+                        Positions arrayDataPose;
+                        string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMoves.json");
+                        arrayDataPose = JsonUtility.FromJson<Positions>(currentMoves);
+                        recordedPose = arrayDataPose.poses.ToList();
+                    }
+                    break;
+                case PoseInputSource.MEDIAPIPE:
+                    /*if (File.Exists(Application.persistentDataPath + "/recordedMediapipeMoves.json"))
+                    {
+                        MediapipePositions arrayDataPose;
+                        string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMediapipeMoves.json");
+                        arrayDataPose = JsonUtility.FromJson<MediapipePositions>(currentMoves);
+                        recordedMediapipePose = arrayDataPose.poses.ToList();
+                    } else*/
+                    /*{*/
+                        recordedMediapipePose = new List<BlazePoseDetecter>();
+                    /*}*/
+                    break;
             }
         }
 
@@ -246,6 +266,7 @@ namespace PoseTeacher
                             Action = -1;
                         }
 
+                        // Save position
                         if (Input.GetMouseButtonDown(1))
                         {
                             Debug.Log("Recording position !");
@@ -261,12 +282,15 @@ namespace PoseTeacher
                             Debug.Log("Record position !");
                         }
 
+                        // Delete all positions
                         if (Input.GetMouseButtonDown(2))
                         {
                             recordedPose.Clear();
                             Debug.Log("Positions deleted !");
                         }
                             break;
+
+                    // Case of MEDIAPIPE
                     case PoseInputSource.MEDIAPIPE:
                         if (MediapipeElbowsAboveHead(poseVisuallizer))
                         {
@@ -277,9 +301,55 @@ namespace PoseTeacher
                         {
                             Action = 1;
                             Debug.Log("Hands above head !");
-                        } else
+                        }
+                        else
                         {
                             Action = -1;
+                        }
+
+                        /*if (recordedMediapipePose.Count != 0)
+                        {
+                            PoseData poseToRecord = PoseData.ConvertMediapipeToPose(poseVisuallizer.detecter);
+
+                            Debug.Log($"{poseToRecord.data.Length}");
+                            int index = 0;
+                            foreach (PoseData poseData in MediapipePositions.ConvertMediapipeToData(recordedMediapipePose).poses)
+                            {
+                                if (poseToRecord.ComparePosition(poseData, threshold * unitAround) >= 0.8)
+                                {
+                                    Action = index % VFXs.GetComponent<SelectVFX>().vfx.Length;
+
+                                    // Not working correctly
+                                    Debug.Log("Pose accorded !");
+                                    break;
+                                }
+                                else
+                                {
+                                    Action = -1;
+                                }
+                                index++;
+                            }
+                        }
+                        else
+                        {
+                            Action = -1;
+                        }*/
+
+                        // Save position
+                        if (Input.GetMouseButtonDown(1))
+                        {
+                            Debug.Log("Recording position !");
+                            BlazePoseDetecter poseToRecord = poseVisuallizer.detecter;
+
+                            recordedMediapipePose.Add(poseToRecord);
+                            Debug.Log("Record position !");
+                        }
+
+
+                        if (Input.GetMouseButtonDown(2))
+                        {
+                            recordedMediapipePose.Clear();
+                            Debug.Log("Positions deleted !");
                         }
                         break;
                 }
@@ -291,14 +361,25 @@ namespace PoseTeacher
         // Actions to do before quitting application
         private void OnApplicationQuit()
         {
-            Positions arrayDataPose = new Positions();
-            arrayDataPose.poses = recordedPose.ToArray();
-            string jsonData = JsonUtility.ToJson(arrayDataPose);
+            string jsonData = "";
+            switch (SelfPoseInputSource)
+            {
+                case PoseInputSource.KINECT:
+                    Positions arrayDataPose = new Positions();
+                    arrayDataPose.poses = recordedPose.ToArray();
+                    jsonData = JsonUtility.ToJson(arrayDataPose);
 
-            File.WriteAllText(Application.persistentDataPath + "/recordedMoves.json", jsonData);
+                    File.WriteAllText(Application.persistentDataPath + "/recordedMoves.json", jsonData);
+                    break;
 
+                case PoseInputSource.MEDIAPIPE:
+                    MediapipePositions arrayMediapipeDataPose = MediapipePositions.ConvertMediapipeToData(recordedMediapipePose);
+
+                    jsonData = JsonUtility.ToJson(arrayMediapipeDataPose);
+                    File.WriteAllText(Application.persistentDataPath + "/recordedMediapipeMoves.json", jsonData);
+                    break;
+            }
             Debug.Log($"{jsonData}");
-
 
             SelfPoseInputGetter.Dispose();
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Kinect.BodyTracking;
+﻿using Mediapipe.BlazePose;
+using Microsoft.Azure.Kinect.BodyTracking;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -65,6 +66,21 @@ namespace PoseTeacher
 
                 return averageSucceed / this.data.Length;
         }
+
+        public static PoseData ConvertMediapipeToPose(BlazePoseDetecter blazePoseDetecter)
+        {
+            List<JointData> joints = new List<JointData>();
+            PoseData newPose = new PoseData();
+            for (int i = 0; i < blazePoseDetecter.vertexCount; i++)
+            {
+                joints.Add(new JointData());
+                joints[i].Position = blazePoseDetecter.GetPoseWorldLandmark(i);
+            }
+
+            newPose.data = joints.ToArray();
+
+            return newPose;
+        }
     }
 
     [Serializable]
@@ -72,6 +88,30 @@ namespace PoseTeacher
     {
         public PoseData[] poses;
     }
+
+    [Serializable]
+    public class MediapipePositions
+    {
+        public PoseData[] poses;
+
+        public static MediapipePositions ConvertMediapipeToData(List<BlazePoseDetecter> blazePoseDetecters)
+        {
+            List<PoseData> result = new List<PoseData>();
+
+            foreach (BlazePoseDetecter blazePoseDetecter in blazePoseDetecters)
+            {
+                PoseData newPose = PoseData.ConvertMediapipeToPose(blazePoseDetecter);
+                result.Add(newPose);
+            }
+
+            MediapipePositions mediapipePositions = new MediapipePositions();
+            mediapipePositions.poses = result.ToArray();
+
+            return mediapipePositions;
+        }
+    }
+
+    
 
 
     // Class with position and orientation of one joint in string format
