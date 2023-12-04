@@ -198,7 +198,7 @@ namespace PoseTeacher
 
             if (!pauseSelf)
             {
-                AnimateSelf(SelfPoseInputGetter.GetNextPose());
+                //AnimateSelf(SelfPoseInputGetter.GetNextPose());
                 //Model.UpdatePosition(SelfPoseInputGetter.GetNextPose());
 
                 //Debug.Log(SelfPoseInputGetter.GetNextPose().data[0].Position);
