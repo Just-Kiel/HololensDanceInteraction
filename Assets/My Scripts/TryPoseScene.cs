@@ -207,26 +207,26 @@ namespace PoseTeacher
                 {
                     case PoseInputSource.KINECT:
 
-                        /*if (HandsElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
+                        if (HandsElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
                         {
                             Action = 0;
-                            Debug.Log("Arms above head !");
+                            Debug.Log("Arms above head ! Action : "+Action);
                         }
                         else if (ElbowsAboveHead(SelfPoseInputGetter.GetNextPose()))
                         {
                             Action = 1;
-                            Debug.Log("Elbows above head !");
+                            Debug.Log("Elbows above head ! Action : " + Action);
                         }
-                        else */
-                        /*if (HandsAboveHead(SelfPoseInputGetter.GetNextPose()))
+                        else
+                        if (HandsAboveHead(SelfPoseInputGetter.GetNextPose()))
                         {
                             Action = 2;
-                            Debug.Log("Hands above head !");
+                            Debug.Log("Hands above head ! Action : "+Action);
                         }
                         else
                         {
                             Action = -1;
-                        }*/
+                        }
 
                         if(recordedPose.Count != 0)
                         {
@@ -292,6 +292,7 @@ namespace PoseTeacher
 
                     // Case of MEDIAPIPE
                     case PoseInputSource.MEDIAPIPE:
+                        Debug.Log(poseVisuallizer.detecter.GetPoseLandmark(13).y);
                         if (MediapipeElbowsAboveHead(poseVisuallizer))
                         {
                             Action = 0;
