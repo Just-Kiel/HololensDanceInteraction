@@ -1,4 +1,5 @@
 ﻿using Mediapipe.BlazePose;
+using Mediapipe.Unity.Holistic;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace PoseTeacher
         List<AvatarContainer> avatarListSelf;
         public GameObject avatarPrefab;
 
+        
+
 
         // State of Main
         //public int recording_mode = 0; // 0: not recording, 1: recording, 2: playback, 3: load_file, 4: reset_recording
@@ -29,9 +32,10 @@ namespace PoseTeacher
         public bool mirroring = false; // can probably be changed to private (if no UI elements use it)
 
         public PoseVisuallizer3D poseVisuallizer;
+        public GameObject mediapipe;
 
         public List<PoseData> recordedPose;
-        public List<BlazePoseDetecter> recordedMediapipePose;
+        public List<Vector4[]> recordedMediapipePose;
         const float unitAround = 100; // in millimeters
         public float threshold = 1;
         public GameObject VFXs;
@@ -58,16 +62,16 @@ namespace PoseTeacher
                 && CurrentPose.data[13].Position.y < CurrentPose.data[27].Position.y;
         }
 
-        public bool MediapipeHandsAboveHead(PoseVisuallizer3D CurrentPose)
+        public bool MediapipeHandsAboveHead(Vector4[] CurrentPose)
         {
-            return CurrentPose.detecter.GetPoseLandmark(15).y > CurrentPose.detecter.GetPoseLandmark(0).y
-                && CurrentPose.detecter.GetPoseLandmark(16).y > CurrentPose.detecter.GetPoseLandmark(0).y;
+            return CurrentPose[15].y < CurrentPose[0].y
+                && CurrentPose[16].y < CurrentPose[0].y;
         }
 
-        public bool MediapipeElbowsAboveHead(PoseVisuallizer3D CurrentPose)
+        public bool MediapipeElbowsAboveHead(Vector4[] CurrentPose)
         {
-            return CurrentPose.detecter.GetPoseLandmark(13).y > CurrentPose.detecter.GetPoseLandmark(0).y
-                && CurrentPose.detecter.GetPoseLandmark(14).y > CurrentPose.detecter.GetPoseLandmark(0).y;
+            return CurrentPose[13].y < CurrentPose[0].y
+                && CurrentPose[14].y < CurrentPose[0].y;
         }
         //Add copy of self or techer to scene
         public void AddAvatar(bool self)
@@ -185,8 +189,10 @@ namespace PoseTeacher
                         recordedMediapipePose = arrayDataPose.poses.ToList();
                     } else*/
                     /*{*/
-                        recordedMediapipePose = new List<BlazePoseDetecter>();
+                    recordedMediapipePose = new List<Vector4[]>();
                     /*}*/
+
+                    mediapipe.SetActive(true);
                     break;
             }
         }
@@ -292,13 +298,14 @@ namespace PoseTeacher
 
                     // Case of MEDIAPIPE
                     case PoseInputSource.MEDIAPIPE:
-                        Debug.Log(poseVisuallizer.detecter.GetPoseLandmark(13).y);
-                        if (MediapipeElbowsAboveHead(poseVisuallizer))
+                        //Debug.Log(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks);
+                        //Debug.Log(poseVisuallizer.detecter.GetPoseLandmark(13).y);
+                        if (MediapipeElbowsAboveHead(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks))
                         {
                             Action = 0;
                             Debug.Log("Elbows above head !");
                         }
-                        else if (MediapipeHandsAboveHead(poseVisuallizer))
+                        else if (MediapipeHandsAboveHead(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks))
                         {
                             Action = 1;
                             Debug.Log("Hands above head !");
@@ -340,7 +347,7 @@ namespace PoseTeacher
                         if (Input.GetMouseButtonDown(1))
                         {
                             Debug.Log("Recording position !");
-                            BlazePoseDetecter poseToRecord = poseVisuallizer.detecter;
+                            Vector4[] poseToRecord = mediapipe.GetComponent<HolisticTrackingSolution>().landmarks;
 
                             recordedMediapipePose.Add(poseToRecord);
                             Debug.Log("Record position !");

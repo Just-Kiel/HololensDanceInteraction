@@ -67,14 +67,14 @@ namespace PoseTeacher
                 return averageSucceed / this.data.Length;
         }
 
-        public static PoseData ConvertMediapipeToPose(BlazePoseDetecter blazePoseDetecter)
+        public static PoseData ConvertMediapipeToPose(Vector4[] blazePoseDetecter)
         {
             List<JointData> joints = new List<JointData>();
             PoseData newPose = new PoseData();
-            for (int i = 0; i < blazePoseDetecter.vertexCount; i++)
+            for (int i = 0; i < blazePoseDetecter.Length; i++)
             {
                 joints.Add(new JointData());
-                joints[i].Position = blazePoseDetecter.GetPoseWorldLandmark(i);
+                joints[i].Position = blazePoseDetecter[i];
             }
 
             newPose.data = joints.ToArray();
@@ -94,11 +94,11 @@ namespace PoseTeacher
     {
         public PoseData[] poses;
 
-        public static MediapipePositions ConvertMediapipeToData(List<BlazePoseDetecter> blazePoseDetecters)
+        public static MediapipePositions ConvertMediapipeToData(List<Vector4[]> blazePoseDetecters)
         {
             List<PoseData> result = new List<PoseData>();
 
-            foreach (BlazePoseDetecter blazePoseDetecter in blazePoseDetecters)
+            foreach (Vector4[] blazePoseDetecter in blazePoseDetecters)
             {
                 PoseData newPose = PoseData.ConvertMediapipeToPose(blazePoseDetecter);
                 result.Add(newPose);
