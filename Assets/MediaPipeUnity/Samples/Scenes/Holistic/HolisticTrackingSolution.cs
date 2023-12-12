@@ -135,12 +135,12 @@ namespace Mediapipe.Unity.Holistic
       _holisticAnnotationController.DrawFaceLandmarkListLater(eventArgs.value);
     }
 
-        public Vector4[] LandmarksToVector4(NormalizedLandmarkList nll)  // where nll = eventArgs.value of LandmarkDetection output
+        public Vector4[] LandmarksToVector4(LandmarkList nll)  // where nll = eventArgs.value of LandmarkDetection output
         {
             Vector4[] vectorpoints = null;
             if (nll != null)
             {
-                List<NormalizedLandmark> normalizedLandmarks = nll.Landmark.ToList();
+                List<Landmark> normalizedLandmarks = nll.Landmark.ToList();
 
                 vectorpoints = new Vector4[normalizedLandmarks.Count];
                 for (int i = 0; i < normalizedLandmarks.Count; i++)
@@ -154,11 +154,11 @@ namespace Mediapipe.Unity.Holistic
         private void OnPoseLandmarksOutput(object stream, OutputEventArgs<NormalizedLandmarkList> eventArgs)
     {
       _holisticAnnotationController.DrawPoseLandmarkListLater(eventArgs.value);
-      landmarks = LandmarksToVector4(eventArgs.value);
+      /*landmarks = LandmarksToVector4(eventArgs.value);
             if (landmarks != null)
             {
                 Debug.Log(landmarks.Length);
-            }
+            }*/
     }
 
     private void OnLeftHandLandmarksOutput(object stream, OutputEventArgs<NormalizedLandmarkList> eventArgs)
@@ -174,6 +174,11 @@ namespace Mediapipe.Unity.Holistic
     private void OnPoseWorldLandmarksOutput(object stream, OutputEventArgs<LandmarkList> eventArgs)
     {
       _poseWorldLandmarksAnnotationController.DrawLater(eventArgs.value);
+        landmarks = LandmarksToVector4(eventArgs.value);
+        /*if (landmarks != null)
+        {
+                Debug.Log(landmarks[0]);
+        }*/
     }
 
     private void OnSegmentationMaskOutput(object stream, OutputEventArgs<ImageFrame> eventArgs)

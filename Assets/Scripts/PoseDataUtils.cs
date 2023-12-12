@@ -81,6 +81,18 @@ namespace PoseTeacher
 
             return newPose;
         }
+
+        public static Vector4[] ConvertPoseToMediapipe(PoseData poseData)
+        {
+            Vector4[] data = new Vector4[poseData.data.Length];
+
+            for (int i = 0; i < poseData.data.Length; i++)
+            {
+                data[i] = poseData.data[i].Position;
+            }
+
+            return data;
+        }
     }
 
     [Serializable]
@@ -108,6 +120,18 @@ namespace PoseTeacher
             mediapipePositions.poses = result.ToArray();
 
             return mediapipePositions;
+        }
+
+        public static List<Vector4[]> ConvertDataToMediapipe(MediapipePositions mediapipePositions)
+        {
+            List<Vector4[]> data = new List<Vector4[]>();
+
+            foreach(PoseData poseData in mediapipePositions.poses)
+            {
+                Vector4[] pose = PoseData.ConvertPoseToMediapipe(poseData);
+                data.Add(pose);
+            }
+            return data;
         }
     }
 

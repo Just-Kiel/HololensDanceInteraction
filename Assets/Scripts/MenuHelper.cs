@@ -326,7 +326,7 @@ namespace PoseTeacher
                 case 2:
                     menus[CurrentMenu].SetActive(false);
                     CurrentMenu = Menus.SETTINGS;
-                    ActivateTeachers();
+                    //ActivateTeachers();
                     menus[CurrentMenu].SetActive(true);
                     break;
                 // Title -> Record movement Menu

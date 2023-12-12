@@ -1,8 +1,10 @@
 ﻿using Mediapipe.BlazePose;
 using Mediapipe.Unity.Holistic;
+using Microsoft.MixedReality.Toolkit.UI;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace PoseTeacher
@@ -37,8 +39,31 @@ namespace PoseTeacher
         public List<PoseData> recordedPose;
         public List<Vector4[]> recordedMediapipePose;
         const float unitAround = 100; // in millimeters
-        public float threshold = 1;
+        public GameObject thresholdSlider;
+        float threshold;
         public GameObject VFXs;
+
+        public void ChangeCamera(TextMeshPro component)
+        {
+            Debug.Log("Change camera");
+
+            if (SelfPoseInputSource == PoseInputSource.KINECT)
+            {
+                SelfPoseInputSource = PoseInputSource.MEDIAPIPE;
+                SaveAndDispose();
+                
+                component.text = "Change Camera To Azure Kinect (Low performance)";
+            } else if (SelfPoseInputSource == PoseInputSource.MEDIAPIPE)
+            {
+                SelfPoseInputSource = PoseInputSource.KINECT;
+                SaveAndDispose();
+
+                component.text = "Change Camera To Mediapipe";
+            }
+
+            SelfPoseInputGetter = new PoseInputGetter(SelfPoseInputSource) { ReadDataPath = fake_file };
+            GetDataFromJSON();
+        }
         public List<AvatarContainer> GetSelfAvatarContainers()
         {
             return avatarListSelf;
@@ -154,6 +179,37 @@ namespace PoseTeacher
             }
         }
 
+        private void GetDataFromJSON()
+        {
+            switch (SelfPoseInputSource)
+            {
+                case PoseInputSource.KINECT:
+                    if (File.Exists(Application.persistentDataPath + "/recordedMoves.json"))
+                    {
+                        Positions arrayDataPose;
+                        string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMoves.json");
+                        arrayDataPose = JsonUtility.FromJson<Positions>(currentMoves);
+                        recordedPose = arrayDataPose.poses.ToList();
+                    }
+                    break;
+                case PoseInputSource.MEDIAPIPE:
+                    if (File.Exists(Application.persistentDataPath + "/recordedMediapipeMoves.json"))
+                    {
+                        MediapipePositions arrayDataPose;
+                        string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMediapipeMoves.json");
+                        arrayDataPose = JsonUtility.FromJson<MediapipePositions>(currentMoves);
+                        recordedMediapipePose = MediapipePositions.ConvertDataToMediapipe(arrayDataPose);
+                    }
+                    else
+                    {
+                        recordedMediapipePose = new List<Vector4[]>();
+                    }
+
+                    mediapipe.SetActive(true);
+                    break;
+            }
+        }
+
         // Do once on scene startup
         private void Start()
         {
@@ -167,34 +223,11 @@ namespace PoseTeacher
             // Default is to have a mirrored view
             do_mirror();
 
+            threshold = thresholdSlider.GetComponent<PinchSlider>().SliderValue * 5;
+
             //recordedPose = null;
 
-            switch (SelfPoseInputSource)
-            {
-                case PoseInputSource.KINECT:
-                    if (File.Exists(Application.persistentDataPath + "/recordedMoves.json"))
-                    {
-                        Positions arrayDataPose;
-                        string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMoves.json");
-                        arrayDataPose = JsonUtility.FromJson<Positions>(currentMoves);
-                        recordedPose = arrayDataPose.poses.ToList();
-                    }
-                    break;
-                case PoseInputSource.MEDIAPIPE:
-                    /*if (File.Exists(Application.persistentDataPath + "/recordedMediapipeMoves.json"))
-                    {
-                        MediapipePositions arrayDataPose;
-                        string currentMoves = File.ReadAllText(Application.persistentDataPath + "/recordedMediapipeMoves.json");
-                        arrayDataPose = JsonUtility.FromJson<MediapipePositions>(currentMoves);
-                        recordedMediapipePose = arrayDataPose.poses.ToList();
-                    } else*/
-                    /*{*/
-                    recordedMediapipePose = new List<Vector4[]>();
-                    /*}*/
-
-                    mediapipe.SetActive(true);
-                    break;
-            }
+            GetDataFromJSON();
         }
 
         // Done at each application update
@@ -298,9 +331,7 @@ namespace PoseTeacher
 
                     // Case of MEDIAPIPE
                     case PoseInputSource.MEDIAPIPE:
-                        //Debug.Log(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks);
-                        //Debug.Log(poseVisuallizer.detecter.GetPoseLandmark(13).y);
-                        if (MediapipeElbowsAboveHead(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks))
+                        /*if (MediapipeElbowsAboveHead(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks))
                         {
                             Action = 0;
                             Debug.Log("Elbows above head !");
@@ -313,22 +344,21 @@ namespace PoseTeacher
                         else
                         {
                             Action = -1;
-                        }
+                        }*/
 
-                        /*if (recordedMediapipePose.Count != 0)
+                        if (recordedMediapipePose.Count != 0 && mediapipe.GetComponent<HolisticTrackingSolution>().landmarks != null)
                         {
-                            PoseData poseToRecord = PoseData.ConvertMediapipeToPose(poseVisuallizer.detecter);
+                            PoseData poseToRecord = PoseData.ConvertMediapipeToPose(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks);
 
-                            Debug.Log($"{poseToRecord.data.Length}");
                             int index = 0;
                             foreach (PoseData poseData in MediapipePositions.ConvertMediapipeToData(recordedMediapipePose).poses)
                             {
-                                if (poseToRecord.ComparePosition(poseData, threshold * unitAround) >= 0.8)
+                                if (poseToRecord.ComparePosition(poseData, threshold * 0.03f) >= 0.8)
                                 {
                                     Action = index % VFXs.GetComponent<SelectVFX>().vfx.Length;
 
                                     // Not working correctly
-                                    Debug.Log("Pose accorded !");
+                                    Debug.Log("Pose accorded !" + poseData.data[0].Position);
                                     break;
                                 }
                                 else
@@ -341,7 +371,7 @@ namespace PoseTeacher
                         else
                         {
                             Action = -1;
-                        }*/
+                        }
 
                         // Save position
                         if (Input.GetMouseButtonDown(1))
@@ -365,9 +395,7 @@ namespace PoseTeacher
             }
         }
 
-
-        // Actions to do before quitting application
-        private void OnApplicationQuit()
+        private void SaveAndDispose()
         {
             string jsonData = "";
             switch (SelfPoseInputSource)
@@ -392,9 +420,17 @@ namespace PoseTeacher
             SelfPoseInputGetter.Dispose();
         }
 
+
+        // Actions to do before quitting application
+        private void OnApplicationQuit()
+        {
+            SaveAndDispose();
+        }
+
         // Change recording mode via keyboard input for debugging and to not need menu
         void CheckKeyInput()
         {
+            threshold = thresholdSlider.GetComponent<PinchSlider>().SliderValue * 5;
             if (Input.GetKeyDown(KeyCode.P))
             {
                 Debug.Log("P - toggle self pause");

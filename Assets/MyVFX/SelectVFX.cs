@@ -1,6 +1,9 @@
 ﻿using PoseTeacher;
+using System;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.VFX;
+using System.Threading.Tasks;
 
 public class SelectVFX : MonoBehaviour
 {
@@ -33,9 +36,17 @@ public class SelectVFX : MonoBehaviour
         }
     }
 
-    void SelectionVFX(int newVFX, int oldVFX)
+    async void SelectionVFX(int newVFX, int oldVFX)
     {
-        if (oldVFX != -1) vfx[oldVFX].GetComponent<VisualEffect>().Stop();
-        if (newVFX != -1) vfx[newVFX].GetComponent<VisualEffect>().Play();
+        if (oldVFX != -1)
+        {
+            await Task.Delay(3000);
+            vfx[oldVFX].GetComponent<VisualEffect>().Stop();
+        }
+
+        if (newVFX != -1)
+        {
+            vfx[newVFX].GetComponent<VisualEffect>().Play();
+        }
     }
 }
