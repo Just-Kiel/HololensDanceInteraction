@@ -1,6 +1,7 @@
 ﻿using Mediapipe.BlazePose;
 using Mediapipe.Unity.Holistic;
 using Microsoft.MixedReality.Toolkit.UI;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -98,6 +99,19 @@ namespace PoseTeacher
             return CurrentPose[13].y < CurrentPose[0].y
                 && CurrentPose[14].y < CurrentPose[0].y;
         }
+
+        /*public bool[] MediapipeSimpleMoves(bool[] moves, Vector4[] CurrentPose)
+        {
+            List<Action> actions = new List<Action>
+            {
+                new Action(() => MediapipeHandsAboveHead(CurrentPose)),
+                new Action(() => MediapipeElbowsAboveHead(CurrentPose))
+            };
+            for (int i = 0; i < moves.Length; i++)
+            {
+                moves[i] = actions.ToArray()[i];
+            }
+        }*/
         //Add copy of self or techer to scene
         public void AddAvatar(bool self)
         {

@@ -4,6 +4,8 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.VFX;
 using System.Threading.Tasks;
+using static UnityEditor.BaseShaderGUI;
+using System.Collections;
 
 public class SelectVFX : MonoBehaviour
 {
@@ -13,9 +15,19 @@ public class SelectVFX : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Start of FX");
         foreach (var vfx in vfx)
         {
-            vfx.GetComponent<VisualEffect>().Stop();
+            if (vfx.GetComponent<VisualEffect>() != null) vfx.GetComponent<VisualEffect>().Stop();
+            else
+            {
+                foreach (var material in vfx.GetComponent<Renderer>().materials)
+                {
+                    material.SetFloat("_StrengthAlpha", 0);
+
+                    Debug.Log(material.name);
+                }
+            }
         }
 
         currentVFX = -1;
@@ -36,17 +48,56 @@ public class SelectVFX : MonoBehaviour
         }
     }
 
+    private IEnumerator FadeObjectOut(Renderer FadingObject)
+    {
+        float time = 0;
+
+        while (FadingObject.materials[0].GetFloat("_StrengthAlpha")> 0)
+        {
+            foreach (Material material in FadingObject.materials)
+            {
+                material.SetFloat("_StrengthAlpha", material.GetFloat("_StrengthAlpha") - time);
+            }
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private IEnumerator FadeObjectIn(Renderer FadingObject)
+    {
+        float time = 0;
+        while (FadingObject.materials[0].GetFloat("_StrengthAlpha") < 1)
+        {
+            foreach (Material material in FadingObject.materials)
+            {
+                material.SetFloat("_StrengthAlpha", material.GetFloat("_StrengthAlpha") + time);
+            }
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
     async void SelectionVFX(int newVFX, int oldVFX)
     {
         if (oldVFX != -1)
         {
             await Task.Delay(3000);
-            vfx[oldVFX].GetComponent<VisualEffect>().Stop();
+            if (vfx[oldVFX].GetComponent<VisualEffect>() != null)  vfx[oldVFX].GetComponent<VisualEffect>().Stop();
+            else
+            {
+                StartCoroutine(FadeObjectOut(vfx[oldVFX].GetComponent<Renderer>()));
+            }
         }
 
         if (newVFX != -1)
         {
-            vfx[newVFX].GetComponent<VisualEffect>().Play();
+            if (vfx[newVFX].GetComponent<VisualEffect>() != null) vfx[newVFX].GetComponent<VisualEffect>().Play();
+            else
+            {
+                StartCoroutine(FadeObjectIn(vfx[newVFX].GetComponent<Renderer>()));
+            }
         }
     }
 }
