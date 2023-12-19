@@ -1,4 +1,5 @@
-﻿using Mediapipe.BlazePose;
+﻿using Inworld.Sample.RPM;
+using Mediapipe.BlazePose;
 using Mediapipe.Unity.Holistic;
 using Microsoft.MixedReality.Toolkit.UI;
 using System;
@@ -350,12 +351,12 @@ namespace PoseTeacher
                             Action = 0;
                             Debug.Log("Elbows above head !");
                         }
-                        else if (MediapipeHandsAboveHead(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks))
+                        else */
+                        if (mediapipe.GetComponent<HolisticTrackingSolution>().landmarks != null && MediapipeHandsAboveHead(mediapipe.GetComponent<HolisticTrackingSolution>().landmarks))
                         {
-                            Action = 1;
-                            Debug.Log("Hands above head !");
+                            GameObject.Find("EmoCanvas").GetComponent<EmotionCanvas>().SetMainStatus(1);
                         }
-                        else
+                        /*else
                         {
                             Action = -1;
                         }*/
